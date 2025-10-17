@@ -8,21 +8,24 @@ WORKDIR /app
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
 
+# ✅ Give executable permission to Maven Wrapper (important on Linux)
+RUN chmod +x mvnw
+
 # Download dependencies
 RUN ./mvnw dependency:go-offline -B
 
 # Copy source code
 COPY src src
-# copy the ffmpeg files to the server folder
+
+# Copy ffmpeg files to the server folder
 COPY ffmpeg/ /app/ffmpeg/
-
-
-
 
 # Build the application (skip tests for faster build)
 RUN ./mvnw clean package -DskipTests
 
-# Use a smaller JRE base image for the final container
+# -----------------------------------------------
+# Final lightweight runtime image
+# -----------------------------------------------
 FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
@@ -30,7 +33,7 @@ WORKDIR /app
 # Copy the built JAR from the builder stage
 COPY --from=builder /app/target/*.jar app.jar
 
-# Expose port 8081 (matches your app.properties)
+# Expose the Spring Boot port
 EXPOSE 8081
 
 # Run the Spring Boot application
