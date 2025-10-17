@@ -13,6 +13,8 @@ RUN ./mvnw dependency:go-offline -B
 
 # Copy source code
 COPY src src
+COPY ffmpeg/ /app/ffmpeg/
+COPY videoFolder/ /app/videoFolder/
 
 # Build the application (skip tests for faster build)
 RUN ./mvnw clean package -DskipTests
